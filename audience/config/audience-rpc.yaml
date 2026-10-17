@@ -1,0 +1,39 @@
+Name: audience.rpc
+ListenOn: 0.0.0.0:9000
+
+# 直连模式（默认）：rpc 只监听 ListenOn，不注册到 etcd。
+# 调用方在客户端配置里填 Endpoints: [<host>:9000] 即可。
+# 后续需要服务发现/多实例负载均衡时，取消注释并启用 Etcd，
+# 同时调用方改用 Etcd 配置（Hosts + Key）按名查询。
+# Etcd:
+#   Hosts:
+#     - etcd:2379
+#   Key: audience.rpc
+
+Mode: pro                       # 关闭 gRPC 反射
+
+Log:
+  ServiceName: audience.rpc
+  Mode: console
+  Encoding: json
+  Level: info
+  TimeFormat: "2006-01-02T15:04:05.000Z07:00"
+  Stat: true
+  StackCooldownMillis: 100
+
+# ---------------- 数据源 ----------------
+Mysql:
+  DataSource: "root:root@tcp(mysql:3306)/audience?charset=utf8mb4&parseTime=true&loc=UTC"
+
+Cache:
+  Host: redis:6379
+  Type: node
+  Pass: ""
+
+Kafka:
+  Brokers:
+    - kafka:9092
+  Topic: audience-event
+  Group: audience-group
+  Offset: last
+  Consumers: 1

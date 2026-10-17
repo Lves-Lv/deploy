@@ -1,0 +1,30 @@
+Name: audience-api
+Host: 0.0.0.0
+Port: 8888
+Timeout: 30000
+MaxBytes: 1048576
+
+# ---------------- 日志（生产） ----------------
+# 容器化固定 console：输出到 stdout，由 Docker/K8s 收集与轮转，
+# 应用层不再自己切文件，避免两套轮转叠加。
+Log:
+  ServiceName: audience-api
+  Mode: console
+  Encoding: json                # 生产必须 json，采集侧才能按字段检索
+  Level: info                   # 生产禁止 debug：性能 + 磁盘 + 敏感信息泄露
+  TimeFormat: "2006-01-02T15:04:05.000Z07:00"
+  Stat: true
+  StackCooldownMillis: 100
+
+JwtAuth:
+  AccessSecret: "${JWT_SECRET}"   # 由环境变量注入，别写死在仓库里
+  AccessExpire: 86400
+
+# 内部路由访问控制：只作用于 /internal 前缀，外部路由不受影响
+InternalAuth:
+  Enabled: true
+  Token: "${INTERNAL_TOKEN}"      # 同样由环境变量注入
+  AllowCIDRs:
+    - "10.0.0.0/8"                # 容器网络 / VPC 内网段，按实际调整
+    - "172.16.0.0/12"
+    - "192.168.0.0/16"

@@ -1,0 +1,42 @@
+Name: user-api
+Host: 0.0.0.0
+Port: 8899
+Timeout: 30000
+MaxBytes: 1048576
+
+Log:
+  ServiceName: user-api
+  Mode: console
+  Encoding: json
+  Level: info
+  TimeFormat: "2006-01-02T15:04:05.000Z07:00"
+  Stat: true
+  StackCooldownMillis: 100
+
+Mysql:
+  DataSource: "root:root@tcp(mysql:3306)/user?charset=utf8mb4&parseTime=true&loc=UTC"
+
+Redis:
+  Host: redis:6379
+  Type: node
+  Pass: ""
+
+Kafka:
+  Brokers:
+    - kafka:9092
+  Topic: user-event
+  Group: user-group
+  Offset: last
+  Consumers: 1
+
+JwtAuth:
+  AccessSecret: "change-me-user-secret"
+  AccessExpire: 86400
+
+InternalAuth:
+  Enabled: true
+  Token: "change-me-internal-token"
+  AllowCIDRs:
+    - "10.0.0.0/8"
+    - "172.16.0.0/12"
+    - "192.168.0.0/16"
